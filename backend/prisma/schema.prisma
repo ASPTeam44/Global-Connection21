@@ -1,0 +1,96 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  name     String
+  company  Company?
+  messages Message[] @relation("UserMessages")
+  createdAt DateTime @default(now())
+}
+
+model Company {
+  id       Int       @id @default(autoincrement())
+  name     String
+  owner    User      @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  products Product[]
+}
+
+model Category {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  products Product[]
+}
+
+model Product {
+  id         Int       @id @default(autoincrement())
+  name       String
+  description String
+  price      Float
+  company    Company   @relation(fields: [companyId], references: [id])
+  companyId  Int
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+  rfqs       RFQ[]
+  reviews    Review[]
+}
+
+model RFQ {
+  id        Int      @id @default(autoincrement())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int
+  details   String
+  quotes    Quote[]
+}
+
+model Quote {
+  id       Int     @id @default(autoincrement())
+  rfq      RFQ     @relation(fields: [rfqId], references: [id])
+  rfqId    Int
+  price    Float
+  delivery String
+  order    Order?
+}
+
+model Order {
+  id       Int    @id @default(autoincrement())
+  quote    Quote  @relation(fields: [quoteId], references: [id])
+  quoteId  Int
+  payments Payment[]
+}
+
+model Payment {
+  id      Int    @id @default(autoincrement())
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId Int
+  amount  Float
+  method  String
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  sender    User     @relation("UserMessages", fields: [senderId], references: [id])
+  senderId  Int
+  receiver  User     @relation("UserMessages", fields: [receiverId], references: [id])
+  receiverId Int
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  rating    Int
+  comment   String
+}

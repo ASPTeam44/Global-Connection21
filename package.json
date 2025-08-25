@@ -1,0 +1,8 @@
+{
+  "name": "global-connection21",
+  "private": true,
+  "workspaces": ["frontend", "backend"],
+  "scripts": {
+    "test": "npm test --workspaces"
+  }
+}
